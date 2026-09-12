@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "cloud-whats-new": {
+      "url": "https://api.whats-new.kr/mcp",
+      "headers": {
+        "Authorization": "Bearer ${WNK_MCP_TOKEN}"
+      },
+      "disabled": false,
+      "autoApprove": ["search_releases", "get_release", "get_stats"]
+    }
+  }
+}

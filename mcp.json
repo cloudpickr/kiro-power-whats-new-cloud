@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "cloud-whats-new": {
-      "url": "https://api.whats-new.kr/mcp",
+      "url": "https://whats-new.cloud/mcp",
       "headers": {
         "Authorization": "Bearer ${WNK_MCP_TOKEN}"
       },

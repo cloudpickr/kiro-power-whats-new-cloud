@@ -1,20 +1,20 @@
 ---
 name: "cloud-whats-new"
 displayName: "Cloud What's New"
-description: "Verify recent AWS, Google Cloud, and Microsoft Azure feature launches (What's New / release notes) against the vendors' original English source text. Power for currency-checking cloud docs; source-format access is token-gated."
-keywords: ["cloud-whats-new", "aws-whats-new", "gcp-release-notes", "azure-updates", "ga-preview-status", "release-notes"]
-author: "froguin"
+description: "Verify recent AWS, Google Cloud, Microsoft Azure, and Oracle Cloud feature launches (What's New / release notes) against the vendors' original English source text. Power for currency-checking cloud docs; source-format access is token-gated."
+keywords: ["cloud-whats-new", "aws-whats-new", "gcp-release-notes", "azure-updates", "oci-updates", "ga-preview-status", "release-notes"]
+author: "cloudpickr"
 ---
 
 # Cloud What's New
 
 ## Overview
 
-Power that connects to the **cloud-whats-new** MCP server (`https://api.whats-new.kr/mcp`) to look up recent release notes from the three major cloud providers — AWS, Google Cloud, Microsoft Azure. The server ingests each vendor's official "What's New" / release-notes RSS feed.
+Power that connects to the **cloud-whats-new** MCP server (`https://whats-new.cloud/mcp`) to look up recent release notes from the major cloud providers — AWS, Google Cloud, Microsoft Azure, and Oracle Cloud (OCI). The server ingests each vendor's official "What's New" / release-notes RSS feed.
 
-Scope for our use: **verifying the three CSPs' recent feature launches** (GA/Preview status, launch dates, regions, features) when currency-reviewing docs. It is **not** a general multi-vendor SOT — model vendors (OpenAI/Anthropic/Google 1P), regulators, and domestic FM providers stay on manual web cross-checking. This power complements the AWS Knowledge MCP (AWS-only, deeper) by covering all three CSPs.
+Scope for our use: **verifying the CSPs' recent feature launches** (GA/Preview status, launch dates, regions, features) when currency-reviewing docs. It is **not** a general multi-vendor SOT — model vendors (OpenAI/Anthropic/Google 1P), regulators, and domestic FM providers stay on manual web cross-checking. This power complements the AWS Knowledge MCP (AWS-only, deeper) by covering all four CSPs.
 
-This power is installed from its public GitHub repository (`kiro-power-whats-new-kr`). The auth token itself is **never** stored in the repo — only a `${WNK_MCP_TOKEN}` reference is (see MCP Config Placeholders below).
+This power is installed from its public GitHub repository (`cloudpickr/whats-new.cloud`). The auth token itself is **never** stored in the repo — only a `${WNK_MCP_TOKEN}` reference is (see MCP Config Placeholders below).
 
 ## Source-of-truth usage (important)
 
@@ -27,20 +27,21 @@ Because `format:"source"` is intentionally omitted from the public schema, pass 
 
 ## Available MCP Server
 
-**Server:** `cloud-whats-new` (remote HTTP JSON-RPC, `https://api.whats-new.kr/mcp`).
+**Server:** `cloud-whats-new` (remote HTTP JSON-RPC, `https://whats-new.cloud/mcp`).
 **Auth:** `Authorization: Bearer ${WNK_MCP_TOKEN}` — required for `format:"source"` calls.
 
 ### Tools
 
 | Tool | Purpose | Key parameters |
 | --- | --- | --- |
-| `search_releases` | Search release notes by keyword / CSP / date range | `query` (string), `csp` (`aws`\|`gcp`\|`azure`), `lang` (`ko`\|`en`), `days`, `start_date`/`end_date` (`YYYY-MM-DD`), `limit`, `format` (`summary`\|`source`) |
-| `get_release` | Fetch one release note by article ID | `id` (number, required), `format` (`summary`\|`source`) |
+| `search_releases` | Search release notes by keyword / CSP / date range | `query` (string), `csp` (`aws`\|`gcp`\|`azure`\|`oci`), `lang` (`ko`\|`en`\|`ja`), `days`, `start_date`/`end_date` (`YYYY-MM-DD`), `limit`, `format` (`summary`\|`source`) |
+| `get_release` | Fetch one release note by article ID | `id` (number, required), `lang` (`ko`\|`en`\|`ja`), `format` (`summary`\|`source`) |
 | `get_stats` | Translation/review pipeline status | none |
 
 ### Semantics
 
-- `csp` must be lowercase (`aws`, `gcp`, `azure`).
+- `csp` must be lowercase (`aws`, `gcp`, `azure`, `oci`).
+- `lang` is one of `ko` (default), `en`, `ja`.
 - With `format:"source"`, results always include the vendor-original text and `url`, regardless of translation backlog.
 - `query` keyword search matches the summary text; when a keyword may not match, omit `query` and filter by `csp` + date window, then read results.
 
@@ -61,13 +62,13 @@ get_release({ "id": 4336634, "format": "source" })
 ## Best Practices
 
 - Use `format:"source"` for anything that will change a doc; cite the returned `url` as the authoritative source and confirm the final fact there.
-- Scope to the three CSPs only. For model-vendor / regulatory / domestic-FM facts, use manual web cross-checking, not this power.
+- Scope to the four CSPs only. For model-vendor / regulatory / domestic-FM facts, use manual web cross-checking, not this power.
 - Prefer `csp` + date-window scans over keyword search when phrasing is uncertain.
 - Read-only reference; no write/admin tools.
 
 ## MCP Config Placeholders
 
-- **`WNK_MCP_TOKEN`**: Bearer token (`wnk_mcp_...`) authenticating `format:"source"` calls to `https://api.whats-new.kr/mcp`.
+- **`WNK_MCP_TOKEN`**: Bearer token (`wnk_mcp_...`) authenticating `format:"source"` calls to `https://whats-new.cloud/mcp`.
   - The token is an `API_KEY_RING` entry of `"type": "mcp"` on the deployed `cloud-whats-new` Worker. Manage/issue it yourself; never write the literal token into `mcp.json` or a shared session.
   - Provide it as an environment variable in the shell that launches Kiro:
     ```bash
@@ -84,9 +85,9 @@ get_release({ "id": 4336634, "format": "source" })
 No `format:"source"` was passed (default is `summary`). Pass it explicitly — it is not in the public schema.
 
 ### Connection errors
-Confirm the endpoint is `https://api.whats-new.kr/mcp` (the Worker is on the `api.` subdomain; `whats-new.kr` is the website host).
+Confirm the endpoint is `https://whats-new.cloud/mcp` (the Worker serves the website host at `/mcp`). The legacy `https://api.whats-new.kr/mcp` endpoint 301-redirects here; prefer the canonical URL.
 
 ---
 
-**MCP Server:** cloud-whats-new (`https://api.whats-new.kr/mcp`)
+**MCP Server:** cloud-whats-new (`https://whats-new.cloud/mcp`)
 **Auth:** `Authorization: Bearer ${WNK_MCP_TOKEN}` (required for `format:"source"`)

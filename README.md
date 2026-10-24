@@ -1,13 +1,13 @@
-# kiro-power-whats-new-kr
+# whats-new.cloud — Kiro Power
 
-A Kiro Power that verifies recent **AWS, Google Cloud, and Microsoft Azure** feature
-launches (What's New / release notes) against each vendor's **original English source
-text**. Useful when currency-reviewing cloud documentation: confirm GA/Preview status,
-launch dates, regions, and feature details from the authoritative source rather than a
-localized summary.
+A Kiro Power that verifies recent **AWS, Google Cloud, Microsoft Azure, and Oracle
+Cloud (OCI)** feature launches (What's New / release notes) against each vendor's
+**original English source text**. Useful when currency-reviewing cloud documentation:
+confirm GA/Preview status, launch dates, regions, and feature details from the
+authoritative source rather than a localized summary.
 
-It connects to the `cloud-whats-new` MCP server at `https://api.whats-new.kr/mcp`,
-which ingests the three CSPs' official "What's New" / release-notes feeds.
+It connects to the `cloud-whats-new` MCP server at `https://whats-new.cloud/mcp`,
+which ingests the CSPs' official "What's New" / release-notes feeds.
 
 ## What it provides
 
@@ -18,6 +18,11 @@ An MCP server (`cloud-whats-new`) with three read-only tools:
 | `search_releases` | Search release notes by keyword / CSP / date range |
 | `get_release` | Fetch one release note by article ID |
 | `get_stats` | Translation/review pipeline status |
+
+Coverage:
+
+- **CSPs:** AWS, Google Cloud, Azure, Oracle Cloud (OCI) — `csp` lowercase.
+- **Languages:** Korean (`ko`, default), English (`en`), Japanese (`ja`).
 
 Two output formats:
 
@@ -30,7 +35,7 @@ Two output formats:
 Install from this GitHub repository via the Kiro Powers UI (Add Custom Power → import
 from Git/folder). Once installed it is available in both the Kiro IDE and CLI, and
 activates dynamically based on the keywords in `POWER.md` (e.g. "aws-whats-new",
-"release-notes", "ga-preview-status").
+"oci-updates", "release-notes", "ga-preview-status").
 
 ## Authentication (token setup)
 
@@ -70,8 +75,13 @@ only `format:"source"` returns `-32001` until the token is present.
 | `mcp.json` | MCP server config (references `${WNK_MCP_TOKEN}`, no secret) |
 | `LICENSE` | MIT-0 |
 
+## Endpoint note
+
+The canonical endpoint is `https://whats-new.cloud/mcp`. The legacy
+`https://api.whats-new.kr/mcp` URL still works but 301-redirects to the canonical host.
+
 ## Scope
 
-Covers the three major CSPs (AWS / GCP / Azure) only. Model vendors (OpenAI /
+Covers the major CSPs (AWS / GCP / Azure / OCI) only. Model vendors (OpenAI /
 Anthropic / Google 1P), regulators, and domestic FM providers are out of scope and
 stay on manual web cross-checking. Read-only; no write/admin tools.
